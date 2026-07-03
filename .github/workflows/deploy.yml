@@ -1,0 +1,54 @@
+# GitHub Pages 自动部署
+# 当你 push 到 main 分支时，自动构建并发布到 GitHub Pages
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # 允许手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # GitHub Pages 部署 base
+      # 如果仓库名是 nightfall-city，GITHUB_PAGES_BASE = /nightfall-city/
+      # 如果是 user.github.io，不需要设（默认 /）
+      - run: echo "GITHUB_PAGES_BASE=/${GITHUB_REPOSITORY##*/}/" >> $GITHUB_ENV
+        # 如果是用户页，取消上面注释改用下面这行：
+        # - run: echo "GITHUB_PAGES_BASE=/" >> $GITHUB_ENV
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

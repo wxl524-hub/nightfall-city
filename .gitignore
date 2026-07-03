@@ -1,0 +1,18 @@
+node_modules/
+dist/
+server/node_modules/
+server/db.json
+
+# IDE
+.trae/
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Env
+.env
+.env.local
+.env.*.local
