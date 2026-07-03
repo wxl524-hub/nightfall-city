@@ -221,12 +221,14 @@ import { computed, ref, watch, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCombatStore } from '../stores/combatStore';
 import { useCharacterStore } from '../stores/characterStore';
+import { useGameStore, GAME_PHASE } from '../stores/gameStore';
 import { audioManager } from '../services/AudioManager';
 import Button from '../components/ui/Button.vue';
 
 const router = useRouter();
 const combatStore = useCombatStore();
 const characterStore = useCharacterStore();
+const gameStore = useGameStore();
 
 const selectedSkill = ref(null);
 const showItemPanel = ref(false);
@@ -315,11 +317,15 @@ function handleUseItem(itemId) {
 
 function handleEndCombat() {
   const wasVictory = combatStore.phase === 'VICTORY';
-  const returnSceneId = combatStore.returnSceneId;
 
   if (wasVictory) {
-    // 胜利：返回游戏场景（GameView 会记录战斗结果）
+    // 胜利：如果有 nextSceneId，推进场景；否则返回原场景
+    const nextSceneId = combatStore.nextSceneId;
     combatStore.resetCombat();
+    gameStore.setGamePhase(GAME_PHASE.PLAYING);
+    if (nextSceneId) {
+      gameStore.loadScene(nextSceneId);
+    }
     router.push('/game');
   } else {
     // 失败：回到主菜单，角色满血

@@ -458,7 +458,8 @@ function handleTriggerEvent(event) {
     case 'combat': {
       const enemyList = resolveEnemies(event.enemy);
       const returnSceneId = gameStore.currentSceneId;
-      combatStore.startCombat(enemyList, { returnSceneId });
+      const nextSceneId = event.nextSceneId ?? null;
+      combatStore.startCombat(enemyList, { returnSceneId, nextSceneId });
       gameStore.setGamePhase(GAME_PHASE.COMBAT);
       router.push('/battle');
       break;

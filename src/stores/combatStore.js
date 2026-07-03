@@ -15,6 +15,8 @@ export const useCombatStore = defineStore('combat', () => {
   const resultInfo = ref(null);
   // 敌人来源场景，胜利后回到该场景
   const returnSceneId = ref(null);
+  // 战斗胜利后推进到的下一个场景
+  const nextSceneId = ref(null);
 
   // ===== Getters =====
   const isPlayerTurn = computed(() => phase.value === 'PLAYER_TURN');
@@ -28,6 +30,7 @@ export const useCombatStore = defineStore('combat', () => {
     phase.value = 'INITIATIVE';
     resultInfo.value = null;
     returnSceneId.value = options.returnSceneId ?? null;
+    nextSceneId.value = options.nextSceneId ?? null;
 
     const characterStore = useCharacterStore();
     // 深拷贝角色，避免战斗中的临时状态污染存档；战斗结束再同步回 store
@@ -403,6 +406,7 @@ export const useCombatStore = defineStore('combat', () => {
     selectedAction.value = null;
     resultInfo.value = null;
     returnSceneId.value = null;
+    nextSceneId.value = null;
   }
 
   return {
@@ -415,6 +419,7 @@ export const useCombatStore = defineStore('combat', () => {
     selectedAction,
     resultInfo,
     returnSceneId,
+    nextSceneId,
     isPlayerTurn,
     aliveEnemies,
     playerAlive,

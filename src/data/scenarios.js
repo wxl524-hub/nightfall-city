@@ -195,7 +195,8 @@ export const scenarios = {
             type: 'narrative',
             triggerEvent: {
               type: 'combat',
-              enemy: 'possessed-woman'
+              enemy: 'possessed-woman',
+              nextSceneId: 'scene-4'
             }
           },
           {
