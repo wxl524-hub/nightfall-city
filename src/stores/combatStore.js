@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, toRaw } from 'vue';
 import { useCharacterStore } from './characterStore';
 import { diceService } from '../services/DiceService';
 
@@ -32,7 +32,7 @@ export const useCombatStore = defineStore('combat', () => {
     const characterStore = useCharacterStore();
     // 深拷贝角色，避免战斗中的临时状态污染存档；战斗结束再同步回 store
     player.value = characterStore.character
-      ? structuredCloneSafe(characterStore.character)
+      ? structuredCloneSafe(toRaw(characterStore.character))
       : null;
 
     enemies.value = enemyList.map(e => ({
@@ -432,8 +432,14 @@ export const useCombatStore = defineStore('combat', () => {
 
 // 结构化克隆的兜底实现（部分环境无 structuredClone）
 function structuredCloneSafe(obj) {
+  // 脱敏 Vue reactive 代理对象，避免 DataCloneError
+  const raw = toRaw(obj);
   if (typeof structuredClone === 'function') {
-    return structuredClone(obj);
+    try {
+      return structuredClone(raw);
+    } catch {
+      return JSON.parse(JSON.stringify(raw));
+    }
   }
-  return JSON.parse(JSON.stringify(obj));
+  return JSON.parse(JSON.stringify(raw));
 }
